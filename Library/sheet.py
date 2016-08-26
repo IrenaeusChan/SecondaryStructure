@@ -62,7 +62,7 @@ class Strand(object):
 	def __repr__(self):
 		strand_sequence = ""
 		for AA in self.amino_acids:
-			strand_sequence += "{0}\n".format(AA)
+			strand_sequence += "{0} {1}\n".format(AA.amino_acid, AA.position)
 		return strand_sequence
 
 class Sheet(object):
@@ -100,13 +100,15 @@ class Sheet(object):
 		return hash(self.__repr__())
 
 	def __eq__(self,other):
-		return self.amino_acids == other.amino_acids
+		return self.strandList == other.strandList
 
 	def __ne__(self, other):
 		return not self.__eq__(other)
 
 	def __repr__(self):
 		sheet_sequence = "Sheet Identifier: {0}\nSeqRes: {1}\nTotal Strands: {2}\n".format(self.sheetIden, self.seqres, self.totalStrand)
+		for strand in self.strandList:
+			sheet_sequence += "{0}\n".format(strand)
 		return sheet_sequence
 
 def buildSheet(file_name, protein):
