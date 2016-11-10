@@ -6,7 +6,7 @@ sys.path.append(os.path.realpath("Library"))
 import protein
 import sheet
 
-MAXVALUE = 100				#Used for cases where there are... like... 1 million files
+MAXVALUE = 500				#Used for cases where there are... like... 1 million files
 path = os.getcwd()
 
 #Checks normal formatting
@@ -28,14 +28,14 @@ def detectBridge(listOfSheets):
 						print "{0} {1}{2}".format(currentSheet.seqres, currentSheet.sheetIden, currentStrand.strandNum)
 						print "{0} {1}{2}".format(otherSheet.seqres, otherSheet.sheetIden, otherStrand.strandNum)
 						return True
-					elif (((currentStrand.start) >= otherStrand.start and (currentStrand.start) <= otherStrand.stop) 
-						or ((currentStrand.stop) >= otherStrand.start and (currentStrand.stop) <= otherStrand.stop)):
+					elif ((currentStrand.start >= otherStrand.start and currentStrand.start <= otherStrand.stop) 
+						or (currentStrand.stop >= otherStrand.start and currentStrand.stop <= otherStrand.stop)):
 						print "Second"
 						print "{0} {1}{2}".format(currentSheet.seqres, currentSheet.sheetIden, currentStrand.strandNum)
 						print "{0} {1}{2}".format(otherSheet.seqres, otherSheet.sheetIden, otherStrand.strandNum)
 						return True
-					elif (((otherStrand.start) >= currentStrand.start and (otherStrand.start) <= currentStrand.stop) 
-						or ((otherStrand.stop) >= currentStrand.start and (otherStrand.stop+1) <= currentStrand.stop)):
+					elif ((otherStrand.start >= currentStrand.start and otherStrand.start <= currentStrand.stop) 
+						or (otherStrand.stop >= currentStrand.start and otherStrand.stop <= currentStrand.stop)):
 						print "Third"
 						print "{0} {1}{2}".format(currentSheet.seqres, currentSheet.sheetIden, currentStrand.strandNum)
 						print "{0} {1}{2}".format(otherSheet.seqres, otherSheet.sheetIden, otherStrand.strandNum)
@@ -44,6 +44,7 @@ def detectBridge(listOfSheets):
 
 def computeAll(filename):
 	only100 = 0
+	count = 0
 	for filename in glob.glob(os.path.join(path, '*.pdb')):
 		drive, pathAndFile = os.path.splitdrive(filename)			#http://stackoverflow.com/questions/3167154/how-to-split-a-dos-path-into-its-components-in-python
 		filePath, file = os.path.split(pathAndFile)
@@ -51,13 +52,16 @@ def computeAll(filename):
 			break
 		else:
 			only100+=1
+			#print filename
 			p = protein.buildProtein(filename)
 			sheetList = sheet.buildSheet(filename, p)
 			print "{0} files completed...".format(only100)
 			if detectBridge(sheetList) == True:
 				print "{0} is BRIDGE".format(file)
+				count+=1
 			else:
 				print "{0} is NOT BRIDGE".format(file)
+	return count
 				
 def computeOne(filename):
 	p = protein.buildProtein(filename)
@@ -73,8 +77,9 @@ if __name__ == '__main__':
 	if (os.path.isdir(path) == True):
 		path += sys.argv[1]
 		print "\nComputing All Files."
-		computeAll(sys.argv[1])
+		amount = computeAll(sys.argv[1])
 		#computeOne(sys.argv[1])
+		print amount
 	else:
 		print "\nERROR: This folder does not exist"
 		print "\nERROR: Please make sure directory format is correct"
