@@ -1,69 +1,58 @@
 """
 Irenaeus Chan
-11/27/2015
+12/13/2016
 
-Amino Acid Class w/ Functions
+Amino Acid Class
+Used for the BINF6210 Final Project
 """
 
 from atom import Atom
 
-AMINO_ACIDS = {'GLY', 'ALA', 'SER', 'THR', 'CYS', 'VAL', 'LEU', 'ILE', 'MET', 'PRO', 'PHE', 'TYR', 'TRP', 'ASP', 'GLU', 'ASN', 'GLN', 'HIS', 'LYS', 'ARG', 'TER'}
-ELEMENTS = {'N':14, 'C':12, 'O':16, 'S':32, 'H':1, 'P':31}
+#The 20 Amino Acids
+AMINO_ACIDS = {'GLY', 'ALA', 'SER', 'THR', 'CYS', 'VAL', 'LEU', 'ILE', 'MET', 'PRO', 'PHE', 'TYR', 'TRP', 'ASP', 'GLU', 'ASN', 'GLN', 'HIS', 'LYS', 'ARG', 'SEC', 'TER'}
+ELEMENTS = {'N':14, 'C':12, 'O':16, 'S':32, 'H':1, 'P':31, 'D':1, 'SE':34}
 
-class AminoAcid (object):
-	"""A configuration for a single Amino Acid"""
+#A configuration for a single Amino Acid
+class AminoAcid(object):
+	"""
+	Creates a new Amino Acid
+	Full argument constructor. 
+	Initializes all instance variables based on parameters passed while checking for formatting
 
-	def __init__(self, amino_acid, seqres, position, backbone, sidechain):
-		"""Creates a new Amino Acid
+	Arguments:
+		aminoAcid: The specific Amino Acid
+		seqres: Which chain (specified by PDB) does the Amino Acid belong to
+		position: The numerical position of the Amino Acid e.g. 239, 240, 241
+		backboneAtoms: The backbone atoms
+		sidechainAtoms: The sidechain atoms
 
-		Arguments:
-			amino_acid: The specific Amino Acid
-			seqres: Which chain does the Amino Acid belong to
-			position: The exact position of the Amino Acid
-			backbone: The backbone atoms
-			sidechain: The sidechain atoms
+	Exceptions:
+		ValuError: If given any invalid parameters
+	"""
+	def __init__(self, aminoAcid, seqres, position, backboneAtoms, sidechainAtoms):
+		if aminoAcid in AMINO_ACIDS: self.aminoAcid = aminoAcid
+		else: raise ValueError('Invalid Amino Acid {0}'.format(aminoAcid))
 
-		Exceptions:
-			ValuError: If given invalid amino_acid, seqres, position, or backbone
-		"""
+		if isinstance(seqres, basestring): self.seqres = seqres
+		else: raise ValueError('Invalid SEQRES {0}'.format(seqres))
 
-		if amino_acid in AMINO_ACIDS:
-			self.amino_acid = amino_acid
-		else:
-			raise ValueError('Invalid Amino Acid {0}'.format(amino_acid))
+		if isinstance(position, int): self.position = position
+		else: raise ValueError('Invalid Position {0}'.format(position))
 
-		if isinstance(seqres, basestring):
-			self.seqres = seqres
-		else:
-			raise ValueError('Invalid SEQRES {0}'.format(seqres))
-
-		if isinstance(position, int):
-			self.position = position
-		else:
-			raise ValueError('Invalid Position {0}'.format(position))
-
-		self.backbone = backbone
-		self.sidechain = sidechain
-
+		#No need to raise Errors for these because when we create an Atom it should check values appropriately
+		self.backboneAtoms = backboneAtoms
+		self.sidechainAtoms = sidechainAtoms
 		self.avgx, self.avgy, self.avgz = weightedAverage(self)
 
-	def __hash__(self):
-		return hash(self.__repr__())
-
-	def __eq__(self, other):
-		return self.__dict__ == other.__dict__
-
-	def __ne__(self, other):
-		return not self.__eq__(other)
-
+	def __eq__(self, other): return self.__dict__ == other.__dict__
+	def __ne__(self, other): return not self.__eq__(other)
 	def __repr__(self):
-		AA = "Amino Acid: {0}\nSEQRES: {1}\nPosition: {2}\n".format(self.amino_acid, self.seqres, self.position)
-		for a in self.backbone:
-			AA += "{0}".format(a)
-		for b in self.sidechain:
-			AA += "{0}".format(b)
-		AA += "\nWeighted Means: {0}, {1}, {2}\n".format(self.avgx, self.avgy, self.avgz)
-		return AA
+		aminoAcidString = "{0} {1} {2}\n".format(self.aminoAcid, self.seqres, self.position)
+		for aa in self.backboneAtoms:
+			aminoAcidString += "{0}".format(aa)
+		for aa in self.sidechainAtoms:
+			aminoAcidString += "{0}".format(aa)
+		return aminoAcidString
 
 def weightedAverage(self):
 	totalX = 0
@@ -71,12 +60,12 @@ def weightedAverage(self):
 	totalZ = 0
 	totalMass = 0
 
-	for atom in self.backbone:
+	for atom in self.backboneAtoms:
 		totalX += atom.x * ELEMENTS[atom.element]
 		totalY += atom.y * ELEMENTS[atom.element]
 		totalZ += atom.z * ELEMENTS[atom.element]
 		totalMass += ELEMENTS[atom.element]
-	for atom in self.sidechain:
+	for atom in self.sidechainAtoms:
 		totalX += atom.x * ELEMENTS[atom.element]
 		totalY += atom.y * ELEMENTS[atom.element]
 		totalZ += atom.z * ELEMENTS[atom.element]

@@ -26,12 +26,20 @@ def dotProduct(vector1, vector2):
 def vectorMagnitude(vector):
 	return ((vector[0])**2 + (vector[1])**2 + (vector[2])**2)**0.5
 
+def normalize(vector):
+	return [vector[0]/vectorMagnitude(vector), vector[1]/vectorMagnitude(vector), vector[2]/vectorMagnitude(vector)]
+
 def dihedralAngle(normalVector1, normalVector2):
 	return math.degrees(math.acos(dotProduct(normalVector1, normalVector2)/(vectorMagnitude(normalVector1) * vectorMagnitude(normalVector2))))
 
+def signedAngle(vector1, vector2):
+	return math.degrees(math.atan2(vectorMagnitude(crossProduct(vector1, vector2)), dotProduct(vector1, vector2)))
+	
 def orthogonalDistanceRegression(listOfCoord):
 #Original code by @dwf from http://stackoverflow.com/questions/2298390/fitting-a-line-in-3d
 #Edited and changed accordingly by Irenaeus Chan
+	if not listOfCoord:
+		return None, None
 	data = np.array(listOfCoord)			#As long as the list of coordinates is [[x, y, z], [x, y, z], [x, y, z]]
 	mean = data.mean(axis=0)				#Calculate the mean of the points, i.e. the "center" of the cloud
 	uu, dd, vv = np.linalg.svd(data-mean)	#Do an SVD on the mean-centered data
@@ -54,7 +62,7 @@ def orthogonalDistanceRegression(listOfCoord):
 	#	[decimal.Decimal(pointsOnLine[1][0]), decimal.Decimal(pointsOnLine[1][1]), decimal.Decimal(pointsOnLine[1][2])])
 	#regressionVector = (round(Decimal(regressionVector[0]), 3), round(Decimal(regressionVector[1]), 3), round(Decimal(regressionVector[2]), 3))
 	#pointsOnLine[0] = [round(Decimal(pointsOnLine[0][0]), 3), round(Decimal(pointsOnLine[0][1]), 3), round(Decimal(pointsOnLine[0][2]), 3)]
-	return regressionVector, pointsOnLine[0]
+	return regressionVector, pointsOnLine		#2/22/2017 Changed pointsOnLine[0] to pointsOnLine
 
 def orthogonalVectorCalculation(pointOnLine, vectorOfLine, point):
 	#Vector V defined as (x, y, z), a point on the line A defined as (l, m, n) and point P defined as (a, b, c).

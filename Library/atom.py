@@ -1,71 +1,47 @@
 """
 Irenaeus Chan
-11/27/2015
+12/13/2016
 
 Atom Class
+Used for the BINF6210 Final Project
 """
 
-BACKBONE_ATOMS = {'N', 'Ca', 'C'}
-ELEMENTS = {'N', 'C', 'O', 'S', 'H', 'P'}
+ELEMENTS = {'N', 'C', 'O', 'S', 'H', 'P', 'D', 'SE'}					#Common atomic elements found inside Amino Acids
 
-import sys
-
+#Configuration for a single Atom
 class Atom (object):
-	"""A configuration for a single Backbone Atom"""
 
-	def __init__(self, atom, x, y, z, position, element):
-		"""Creates a new Atom
+	"""
+	Creates a new Atom
+	Full argument constructor. 
+	Initializes all instance variables based on parameters passed while checking for formatting
 
-		Arguments:
-			atom: The specific Backbone Atom
-			x: X position of the atom
-			y: Y position of the atom
-			z: Z position of the atom
-			position: The Amino Acid which the Atom belongs to
-			element: Which element the atom is made of (mainly important for side chains)
+	Arguments:
+		atom: The specific atom representation defined by the PDB File e.g. C, Ca, N
+		x: The X position of the Atom
+		y: The Y position of the Atom
+		z: The Z position of the Atom
+		element: Which element the atom is made of (Important for Side Chain Information)
 
-		Exceptions:
-			ValuError: If given invalid atom, x, y, or z
-		"""
+	Exceptions:
+		ValueError: If given any invalid parameters
+	"""
+	def __init__(self, atom, x, y, z, element):
+		self.atom = atom 									#No check because PDB has a variety of Atom definitions
 
-		#if atom in BACKBONE_ATOMS:
-		self.atom = atom
-		#else:
-			#raise ValueError('Invalid Atom {0}'.format(atom))
+		#Position Checks (Float)
+		if isinstance(x, float): self.x = x
+		else: raise ValueError('Invalid X {0}'.format(x))
+		if isinstance(y, float): self.y = y
+		else: raise ValueError('Invalid Y {0}'.format(y))
+		if isinstance(z, float): self.z = z
+		else: raise ValueError('Invalid Z {0}'.format(z))
 
-		if isinstance(x, float):
-			self.x = x
-		else:
-			raise ValueError('Invalid X {0}'.format(x))
+		if element in ELEMENTS: self.element = element
+		else: raise ValueError('Invalid Element {0} {1}'.format(element, x))
 
-		if isinstance(y, float):
-			self.y = y
-		else:
-			raise ValueError('Invalid Y {0}'.format(y))
+	def __eq__(self, other): return self.__dict__ == other.__dict__
+	def __ne__(self, other): return not self.__eq__(other)
+	def __repr__(self): return "\n{0} at ({1}, {2}, {3}) \t{4}".format(self.atom, self.x, self.y, self.z, self.element)
 
-		if isinstance(z, float):
-			self.z = z
-		else:
-			raise ValueError('Invalid Z {0}'.format(z))
 
-		if isinstance(position, int):
-			self.position = position
-		else:
-			raise ValueError('Invalid Position {0}'.format(position))
-
-		if element in ELEMENTS:
-			self.element = element
-		else:
-			raise ValueError('Invalid Element {0}'.format(element))
-
-	def __hash__(self):
-		return hash(self.__repr__())
-
-	def __eq__(self, other):
-		return self.__dict__ == other.__dict__
-
-	def __ne__(self, other):
-		return not self.__eq__(other)
-
-	def __repr__(self):
-		return "\nAtom: {0} at ({1}, {2}, {3}) and {4}".format(self.atom, self.x, self.y, self.z, self.element)
